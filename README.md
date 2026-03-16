@@ -1,115 +1,83 @@
 # Navigating GitHub
 
-**The adaptive GitHub companion that meets you where you are.**
+**Get set up on GitHub and learn it by doing — with an AI that adapts to your level.**
 
-Whether you've never heard of GitHub or you're rebasing feature branches in your sleep, this skill adapts its language, depth, and autonomy to your experience level. It's the AI-native GitHub companion for everyone building with AI.
+Use this skill to go from zero to a working GitHub setup, then learn git and GitHub through interactive hands-on exercises on your actual project. No slides, no docs, no assumed knowledge. Just real commands, real results, and explanations that make sense at your level.
 
-## Who Is This For?
+## What It Does
 
-- **Complete beginners** who need GitHub setup from scratch
-- **Intermediate users** who commit and push but want better workflows
-- **Advanced developers** who want to optimize their team collaboration
-- **Anyone using AI coding tools** (Claude Code, Cowork, Cursor, Windsurf, Cline, Aider, Continue)
+### Get Set Up (the main event)
 
-## How It Works
+Say "set up my repo" or "help me with github" and the skill walks through everything:
 
-### AI-Driven Skill Assessment
+1. **Connect to GitHub** — installs `gh` CLI, authenticates, configures git identity
+2. **Initialize your repo** — `git init`, auto-generated `.gitignore`, first commit
+3. **Create the remote** — `gh repo create`, push, shows the live URL
 
-The skill doesn't assume your level — it **figures it out** by reading signals from your environment and asking one targeted question. Then it adapts everything: language, explanations, how much it does for you vs. how much it lets you drive.
+Skips anything already done. Complete beginners get full explanations ("GitHub is like Google Drive for code"). Experienced developers get it done in seconds.
+
+### Learn by Doing
+
+Say "teach me github" and start interactive lessons on your real project:
+
+| Say This | What Happens |
+|----------|-------------|
+| "teach me github" | **GitHub 101** — make changes, commit, push. Guided step by step. |
+| "what are branches" | **Branching Basics** — create a branch, make a change, switch back, see the difference. |
+| "teach me PRs" | **Your First PR** — branch, push, create a PR, see the diff, merge it. |
+| "teach me branching strategies" | **Branch Workflows** — feature branches, naming conventions, keeping branches current. |
+| "teach me code review" | **PR Review Flow** — review a PR, leave comments, approve or request changes. |
+| "teach me rebase" | **Rebase vs Merge** — interactive rebase, squash commits, clean history. |
+| "teach me CI/CD" | **GitHub Actions** — write a workflow, push, watch it run. |
+
+Every lesson follows **do-then-explain**: run the command, see what happens, then understand why. The AI checks understanding after each step before moving on.
+
+### Daily Workflow (once you're set up)
+
+| Say This | What Happens |
+|----------|-------------|
+| "save my work" | Stages changes safely, generates a commit message, commits |
+| "share my changes" | Branches if on main, pushes, creates a PR |
+| "what changed" | Translates `git status` and `git diff` into plain English |
+| "I'm stuck" / "fix this" | Detects the problem and walks through the fix |
+
+## Adaptive Skill Level
+
+The skill figures out your level from your environment — commit message quality, branch usage, auth state — not from a questionnaire. It only asks when signals are genuinely ambiguous.
 
 | Level | What You Experience |
 |-------|-------------------|
-| **Beginner** | Analogies, zero jargon, full step-by-step guidance. The AI does it for you and teaches as it goes. |
-| **Intermediate** | Light jargon with definitions, explains the "why." The AI handles it and asks you to confirm. |
-| **Advanced** | Standard git vocabulary, brief rationale only. The AI suggests, you decide. |
+| **Beginner** | Analogies, zero jargon, full step-by-step. The AI does it and teaches as it goes. |
+| **Intermediate** | Light jargon with definitions, explains the "why." Handles it, asks you to confirm. |
+| **Advanced** | Standard git vocabulary, brief rationale. Suggests, you decide. |
 | **Expert** | Terse and technical. You drive, the AI assists. |
 
-The skill continuously re-evaluates. If you start using branch commands confidently, it levels up. If you freeze on a rebase conflict, it drops into teaching mode for that topic.
-
-## Six Modes
-
-### Setup
-*Triggers: no git repo, no GitHub auth, "set up my repo"*
-
-Guided onboarding from zero to a working GitHub setup. Checks what's already done and only walks through what's missing: GitHub account, `gh` CLI, authentication, git identity, repo initialization, remote creation.
-
-### Save
-*Triggers: "save my work", "commit", uncommitted changes*
-
-Stage changes, generate a meaningful commit message, and commit. Checks for secrets before staging. Beginners learn what commits are; advanced users get a one-liner.
-
-### Share
-*Triggers: "share my changes", "push", "create a PR"*
-
-Branch if on main (always — safety first), push, and create a pull request with `gh`. Beginners learn what branches and PRs are; advanced users just get the URL.
-
-### Understand
-*Triggers: "what changed", "status", "show me the history"*
-
-Translates `git status`, `git log`, and `git diff` into your language. Beginners get "you have 3 unsaved files." Advanced users get the raw diff with a summary.
-
-### Fix
-*Triggers: merge conflicts, auth errors, "I'm stuck"*
-
-Conflict resolution, authentication repair, detached HEAD rescue, rebase recovery. Beginners get line-by-line walkthroughs. Advanced users get the diff and resolve it themselves.
-
-### Learn
-*Triggers: "teach me github", "what are branches", "how do PRs work"*
-
-Interactive hands-on lessons using real commands on real repos. **Do-then-explain** methodology — run the command, see the result, then understand what happened.
-
-**Beginner lessons:** GitHub 101, Branching Basics, Your First PR
-**Intermediate lessons:** Branch Workflows, PR Review Flow, Team Git
-**Advanced lessons:** Rebase vs Merge, GitHub Actions Basics, Code Review Ecosystem
+Continuously adapts — levels up when confidence grows, drops into teaching mode when confusion appears on any specific topic.
 
 ## Install
 
-### Claude Code
 ```bash
+# Claude Code
 /plugin marketplace add jeremylongshore/navigating-github
-```
 
-### Manual
-Clone this repo and add it to your Claude Code plugins directory:
-```bash
+# Manual
 git clone https://github.com/jeremylongshore/navigating-github.git
 ```
 
-## Safety Rules (Non-Negotiable)
+Works with: **Claude Code**, **Cursor**, **Windsurf**, **Aider**, **Continue** — any AI coding tool with terminal access.
 
-These apply at every skill level, every time:
+## Safety (Non-Negotiable)
 
-- **Never** pushes to `main`/`master` — always branches first
-- **Never** force pushes without explicit confirmation
-- **Never** runs destructive operations (`reset --hard`, `clean -fd`) without showing you what will be affected and getting your OK
-- **Never** commits secrets (`.env`, API keys, credentials)
-- **Always** runs `git status` before any destructive operation
+- Never pushes to `main`/`master` — always branches first
+- Never force pushes without explicit confirmation
+- Never commits secrets (`.env`, API keys, credentials)
+- Never runs destructive operations without showing impact first
 
-If you say "just push to main," it'll explain why branching is safer and branch anyway. Your code's safety comes first.
-
-## Reference Files
-
-The skill includes detailed reference material that the AI pulls from as needed:
-
-| File | Contents |
-|------|----------|
-| `git-concepts-glossary.md` | Plain-English definitions of every git/GitHub term, with beginner analogies and technical details |
-| `error-recovery-playbook.md` | Step-by-step recovery for merge conflicts, auth errors, detached HEAD, rebase problems |
-| `safety-rules.md` | Full safety protocol — branch protection, secret detection, destructive operation guards |
-| `github-review-apps.md` | Code review ecosystem — CodeRabbit, Copilot Review, Greptile, CodeQL, Qodo |
-| `claude-github-platforms.md` | How GitHub works across Claude Code, Cowork, Cursor, and other AI platforms |
-| `skill-assessment-guide.md` | How the AI determines your level and the full adaptive behavior matrix |
-| `learning-curriculum.md` | Complete lesson plans for beginner through advanced |
-
-## Platform Compatibility
-
-Works with: **Claude Code**, **Cowork**, **Cursor**, **Windsurf**, **Cline**, **Aider**, **Continue**
-
-The skill adapts to the platform's capabilities. Full hands-on experience on terminal-capable platforms; conceptual guidance where terminal access isn't available.
+If you say "just push to main," it explains why branching is safer and branches anyway.
 
 ## Contributing
 
-PRs welcome! This skill is designed to help everyone — if you see a gap in the curriculum, a confusing explanation, or a missing error recovery scenario, open an issue or submit a PR.
+PRs welcome. If you see a gap in the curriculum, a confusing explanation, or a missing error recovery scenario — open an issue or submit a PR.
 
 ## License
 
