@@ -161,6 +161,8 @@ Progressive lesson plans for beginner, intermediate, and advanced users. Each le
 
 ---
 
+**Note on intermediate and advanced lessons:** Lessons 4-9 are structured as outlines with concepts and exercise steps. The AI generates the full step-by-step detail at runtime, adapting to the user's level and project context. This is intentional — unlike beginner lessons (which are fully scripted), higher-level lessons require more contextual flexibility.
+
 ## Intermediate Curriculum
 
 ### Lesson 4: Branch Workflows

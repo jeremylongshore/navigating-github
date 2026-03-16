@@ -196,9 +196,9 @@ git restore --staged path/to/file  # Unstage, then restore
 
 **Step 1: Remove from current commit (if last commit)**
 ```bash
-git reset HEAD~1           # Undo last commit, keep changes
-# Add file to .gitignore
-echo "large-file.zip" >> .gitignore
+git reset HEAD~1           # Undo last commit, keep changes — do NOT re-add the large file
+# Add file to .gitignore (check for duplicates first)
+grep -qF "large-file.zip" .gitignore 2>/dev/null || echo "large-file.zip" >> .gitignore
 git add .gitignore
 git add <other-files>      # Re-add everything except the large file
 git commit -m "Add changes without large file"
@@ -234,6 +234,39 @@ git push
 - If merging: `git commit` then `git push`
 
 **NEVER suggest `git push --force`** unless the user is an expert AND explicitly asks for it AND understands the consequences.
+
+## Stash Recovery
+
+### Symptoms
+- `git stash pop` caused conflicts
+- Lost track of stashed changes
+- Stash accidentally dropped
+
+### Recovery
+
+**Step 1: List all stashes**
+```bash
+git stash list  # Shows all saved stashes
+```
+
+**Step 2: View stash contents without applying**
+```bash
+git stash show -p stash@{0}  # Show diff of most recent stash
+```
+
+**Step 3: If `git stash pop` caused conflicts**
+The stash is NOT dropped when pop causes conflicts. Resolve the conflicts normally (see Merge Conflicts section), then drop the stash manually:
+```bash
+git stash drop stash@{0}
+```
+
+**Step 4: If stash was dropped accidentally**
+Stashes can sometimes be recovered from the reflog within a few weeks:
+```bash
+git fsck --unreachable | grep commit  # Find orphaned commits
+```
+
+**Beginner guidance:** "Think of stash as a drawer where git temporarily stores changes. Sometimes when pulling those changes back out, they conflict with new work. The changes are still in the drawer until the conflict is resolved."
 
 ## Common Error Messages Translated
 
