@@ -91,7 +91,7 @@ Progressive lesson plans for beginner, intermediate, and advanced users. Each le
 
 2. **Create a new branch**
    ```bash
-   git checkout -b my-experiment
+   git switch -c my-experiment
    ```
    *After:* "You just created a copy of your project called 'my-experiment.' Changes you make here won't affect the main version."
 
@@ -106,13 +106,13 @@ Progressive lesson plans for beginner, intermediate, and advanced users. Each le
 
 5. **Switch back to main**
    ```bash
-   git checkout main
+   git switch main
    ```
    *After:* "Look at your README — the change is gone! It's safely stored on the 'my-experiment' branch."
 
 6. **Switch back to the branch**
    ```bash
-   git checkout my-experiment
+   git switch my-experiment
    ```
    *After:* "And it's back! Branches let you work on different things without them interfering with each other."
 
@@ -153,8 +153,10 @@ Progressive lesson plans for beginner, intermediate, and advanced users. Each le
 
 5. **Clean up**
    ```bash
-   git checkout main
+   git switch main
    git pull
+   git branch -d my-experiment        # Delete local branch
+   git push origin --delete my-experiment  # Delete remote branch
    ```
 
 ---
@@ -244,9 +246,26 @@ Progressive lesson plans for beginner, intermediate, and advanced users. Each le
 - Common workflow triggers (push, PR, schedule)
 - Status checks on PRs
 
+**Starter workflow example:**
+```yaml
+# .github/workflows/ci.yml
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - run: npm test
+```
+
 **Hands-on exercise:**
-1. Create a simple workflow file (lint or test)
-2. Push and watch it run
+1. Create `.github/workflows/ci.yml` with the starter workflow above
+2. Push and watch it run via `gh run list` and `gh run watch`
 3. See how it appears on a PR as a status check
 
 ---

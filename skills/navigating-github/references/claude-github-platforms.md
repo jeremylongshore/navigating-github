@@ -6,14 +6,14 @@ How Claude works with GitHub across different platforms. Use this to set accurat
 
 | Capability | Claude Code (CLI) | Cowork | Cursor / Windsurf / Cline | Claude AI (web/app) |
 |-----------|-------------------|--------|--------------------------|-------------------|
-| Run git commands | Yes — full terminal access | Via plugins | Yes — integrated terminal | No |
+| Run git commands | Yes — full terminal access | Via skills | Yes — integrated terminal | No |
 | Create commits | Yes — directly | Via skills | Yes — directly | No (can draft messages) |
 | Create branches | Yes — directly | Via skills | Yes — directly | No |
 | Push to remote | Yes — directly | Via skills | Yes — directly | No |
-| Create PRs | Yes — via `gh` CLI | Via skills | Varies by platform | No (can draft PR descriptions) |
+| Create PRs | Yes — via `gh` CLI | Via skills | Yes — if `gh` CLI installed | No (can draft PR descriptions) |
 | Resolve conflicts | Yes — edit files + git | Via skills | Yes — edit files + git | No (can advise) |
 | Read git history | Yes — `git log`, `git diff` | Via skills | Yes — built-in or terminal | No |
-| GitHub API access | Yes — via `gh` CLI | Limited | Varies | No |
+| GitHub API access | Yes — via `gh` CLI | Limited | Yes — if `gh` CLI installed | No |
 | Install GitHub Apps | No (browser task) | No | No | No |
 
 ## Claude Code (CLI)

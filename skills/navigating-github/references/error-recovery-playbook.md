@@ -6,8 +6,8 @@ Step-by-step recovery procedures for common git and GitHub problems. Each sectio
 
 ### Detection
 ```bash
-# Check for conflict markers in working tree
-grep -rn "<<<<<<< " --include="*" . 2>/dev/null | head -20
+# Check for conflicted files via git
+git diff --name-only --diff-filter=U 2>/dev/null
 ```
 
 ### Recovery
@@ -30,7 +30,7 @@ Their changes (incoming branch)
 
 **Beginner guidance:** "Two versions of the same code exist. Everything between `<<<<<<<` and `=======` is YOUR version. Everything between `=======` and `>>>>>>>` is the OTHER version. You need to pick one, combine them, or write something new — then delete the marker lines."
 
-**Advanced guidance:** Show the diff, let them resolve in their editor.
+**Advanced guidance:** Show `git diff` for each conflicted file. Let them resolve in their editor. Offer to handle specific files if asked.
 
 **Step 3: After resolving all conflicts**
 ```bash
@@ -120,18 +120,23 @@ git checkout main  # Just go back
 
 ### Recovery
 
-**Step 1: If rebase is still in progress**
+**Step 1: Check current state first**
+```bash
+git status  # Always check before any recovery action
+```
+
+**Step 2: If rebase is still in progress**
 ```bash
 # Abort and go back to pre-rebase state
 git rebase --abort
 ```
 
-**Step 2: If rebase completed but history is wrong**
+**Step 3: If rebase completed but history is wrong**
 ```bash
 # Find the pre-rebase state in reflog
 git reflog
-# Reset to the commit before rebase started
-git reset --hard <pre-rebase-hash>  # REQUIRES USER CONFIRMATION
+# Reset to the commit before rebase started — REQUIRES USER CONFIRMATION
+git reset --hard REFLOG_HASH
 ```
 
 **Step 3: Offer merge as alternative**
@@ -146,11 +151,12 @@ git merge main  # Instead of rebase
 
 ### Recovery
 
-**Step 1: Move the commit to a new branch**
+**Step 1: Check state and move the commit to a new branch**
 ```bash
+git status  # Verify clean working tree before destructive operation
 git branch feature-branch  # Creates branch at current position (with the commit)
 git reset --hard HEAD~1     # REQUIRES USER CONFIRMATION - moves main back one commit
-git checkout feature-branch
+git switch feature-branch
 ```
 
 **Step 2: Push the feature branch**
@@ -166,12 +172,14 @@ git push -u origin feature-branch
 
 **If the file was committed:**
 ```bash
-git checkout HEAD -- path/to/file  # Restore from last commit
+git restore path/to/file  # Restore from last commit (Git 2.23+)
+# Legacy: git checkout HEAD -- path/to/file
 ```
 
 **If the file was staged but not committed:**
 ```bash
-git checkout -- path/to/file  # Restore from staging area
+git restore --staged path/to/file  # Unstage, then restore
+# Legacy: git checkout -- path/to/file
 ```
 
 **If the file was never tracked:**
@@ -208,16 +216,22 @@ git commit -m "Add changes without large file"
 
 ### Recovery
 
+**For intermediate+ users:**
 ```bash
-# Pull first, then push
-git pull --rebase origin <branch>  # Rebase local changes on top of remote
+git pull --rebase origin BRANCH  # Rebase local changes on top of remote
+git push
+```
+
+**For beginners (simpler merge-based approach):**
+```bash
+git pull origin BRANCH  # Merge remote changes in
 git push
 ```
 
 **If conflicts arise during pull:**
 - Resolve conflicts (see Merge Conflicts section above)
-- `git rebase --continue`
-- `git push`
+- If rebasing: `git rebase --continue` then `git push`
+- If merging: `git commit` then `git push`
 
 **NEVER suggest `git push --force`** unless the user is an expert AND explicitly asks for it AND understands the consequences.
 
@@ -227,7 +241,7 @@ git push
 |-------|-------------|------------|
 | `fatal: not a git repository` | This folder isn't tracked by git yet | Run `git init` or navigate to the right folder |
 | `error: failed to push some refs` | Someone else pushed changes before you | Pull first, then push |
-| `fatal: refusing to merge unrelated histories` | Two repos with no common ancestor | Usually means wrong remote; check `git remote -v` |
+| `fatal: refusing to merge unrelated histories` | Two repos with no common ancestor | Check `git remote -v` for wrong remote; if intentional, use `--allow-unrelated-histories` |
 | `error: Your local changes would be overwritten` | You have unsaved changes that conflict | Commit or stash your changes first |
-| `warning: LF will be replaced by CRLF` | Line ending difference (Windows vs Mac/Linux) | Usually safe to ignore; configure `core.autocrlf` if persistent |
+| `warning: LF will be replaced by CRLF` | Line ending difference (Windows vs Mac/Linux) | Usually safe to ignore; set `git config --global core.autocrlf input` on Mac/Linux or `true` on Windows |
 | `Permission denied (publickey)` | SSH key not set up or not recognized | Re-authenticate with `gh auth login` |

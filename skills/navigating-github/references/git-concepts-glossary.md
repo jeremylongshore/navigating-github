@@ -43,12 +43,12 @@ Plain-English definitions of git and GitHub terms. Use these when explaining con
 - **Technical:** Transfers local commits to a remote repository.
 
 ### Pull
-- **Beginner:** Downloading the latest changes from GitHub to your computer. The opposite of push.
-- **Technical:** Fetches changes from a remote and merges them into the current branch. Equivalent to `git fetch` + `git merge`.
+- **Beginner:** Downloading the latest changes from GitHub and applying them to the project on your computer. The opposite of push.
+- **Technical:** Fetches changes from a remote and integrates them into the current branch. By default equivalent to `git fetch` + `git merge`, but can be configured to rebase instead (`pull.rebase = true` or `git pull --rebase`).
 
 ### Fetch
-- **Beginner:** Checking if there are any new changes on GitHub without actually downloading them yet.
-- **Technical:** Downloads new data from a remote repository without modifying the working tree or current branch.
+- **Beginner:** Downloading the latest updates from GitHub into git's memory, without changing the files on screen. Like checking for new mail without opening any of it.
+- **Technical:** Downloads objects and refs from a remote into `.git/` storage. Does not modify the working tree or current branch — the fetched data must be explicitly merged or rebased.
 
 ### Remote
 - **Beginner:** The GitHub address where your project lives online. Usually called "origin."
@@ -66,7 +66,11 @@ Plain-English definitions of git and GitHub terms. Use these when explaining con
 
 ### Merge
 - **Beginner:** Combining two versions of the project into one. Like merging two Google Docs into a single document.
-- **Technical:** Integrates changes from one branch into another. Creates a merge commit unless fast-forwarded.
+- **Technical:** Integrates changes from one branch into another. Three strategies: fast-forward (linear history, no merge commit), three-way merge (creates a merge commit), and squash merge (collapses all commits into one).
+
+### Fast-Forward
+- **Beginner:** When the main branch hasn't changed since the branch was created, git can simply move the pointer forward — no combining needed.
+- **Technical:** A merge strategy where HEAD advances linearly to the target commit without creating a merge commit. Only possible when there is no divergent history.
 
 ### Merge Conflict
 - **Beginner:** Two people changed the same part of a file, and git doesn't know which version to keep. You have to choose.
@@ -75,6 +79,7 @@ Plain-English definitions of git and GitHub terms. Use these when explaining con
 ### Rebase
 - **Beginner:** Moving your changes to sit on top of the latest version of the project. Like rewriting your additions on a fresh copy of the document.
 - **Technical:** Replays commits from one branch onto another, creating a linear history. Rewrites commit hashes.
+- **Safety:** Never rebase commits that have been pushed to a shared branch — this rewrites history others depend on.
 - **Advanced note:** `git rebase -i` (interactive) allows squashing, reordering, and editing commits.
 
 ## Git Operations

@@ -6,15 +6,19 @@ How the AI determines the user's GitHub skill level and adapts its behavior.
 
 ### Passive Signals (checked automatically)
 
+**Note:** A fresh repo with few commits does not automatically indicate a beginner. Always cross-reference passive signals with the active assessment question. A new project from an experienced developer will show beginner-like passive signals.
+
 | Signal | Beginner Indicator | Intermediate | Advanced | Expert |
 |--------|-------------------|-------------|----------|--------|
 | `gh auth status` | Not authenticated | Authenticated | Authenticated | Authenticated |
 | `.git/` exists | No | Yes, few commits | Yes, many commits | Yes, complex history |
 | Commit messages | N/A | "update", "fix", single words | Descriptive, conventional | Conventional commits, scoped |
-| Branch count | 0-1 (just main) | 1-2 (maybe one feature branch) | 3+ active branches | Branch naming conventions |
+| Branch count | 0-1 (just main)* | 1-2 (maybe one feature branch) | 3+ active branches | Branch naming conventions |
 | `.gitignore` | Missing | Exists but basic | Comprehensive | Custom, project-specific |
 | Remote config | None | HTTPS | SSH or HTTPS | Multiple remotes |
 | PR history | None | Few, if any | Regular PRs | PRs with reviews, CI |
+
+*A branch count of 0-1 in a new repo is inconclusive — defer to the active assessment question.
 
 ### Active Assessment Question
 

@@ -6,14 +6,11 @@ description: |
   Six modes: setup, save, share, understand, fix, learn. Use when the
   user asks about git, GitHub, saving work, sharing code, setting up a
   repo, making a pull request, fixing merge conflicts, or learning
-  version control. Trigger phrases: "help me with github", "save my
-  work", "share my changes", "set up my repo", "what changed", "fix
-  this merge conflict", "push my code", "create a pull request", "teach
-  me github", "learn git". Trigger with "help me with github", "save my
-  work", "share my changes", "set up my repo", "teach me github", or any
-  git/GitHub question. Make sure to use this skill whenever anyone asks
-  about git or GitHub regardless of their experience level.
-allowed-tools: Read, Write, Glob, Grep, Bash(git:*, gh:*, echo:*, test:*, ssh:*), AskUserQuestion
+  version control. Trigger with "help me with github", "save my work",
+  "share my changes", "set up my repo", "teach me github", "what changed",
+  "fix this merge conflict", "push my code", "create a pull request",
+  "learn git", or any git/GitHub question.
+allowed-tools: Read, Write, Glob, Grep, Bash(git:*), Bash(gh:*), Bash(ssh:*), Bash(test:*), Bash(echo:*), AskUserQuestion
 version: 1.0.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
@@ -21,286 +18,146 @@ compatible-with: claude-code, cursor, windsurf, aider, continue
 tags: [github, git, beginner, intermediate, advanced, vibe-coding, version-control, collaboration, learning]
 ---
 
-# Navigating GitHub — Adaptive Interactive Skill
+# Navigating GitHub
 
-You are an adaptive GitHub companion. Your job is to help the user with any git or GitHub task while calibrating your language, explanation depth, and autonomy to their skill level. You meet the user where they are — from "What's GitHub?" to "rebase my feature branch onto main."
+Adaptive GitHub companion — assess skill level, route to the correct mode, calibrate all output.
 
-## Step 1: Assess the User's Skill Level
+## Table of Contents
 
-Before doing anything else, build a mental model of who you're talking to.
+1. Overview — 2. Prerequisites — 3. Instructions — 4. Modes — 5. Examples — 6. Error Handling — 7. Output — 8. Resources
 
-### Passive Signals (check silently — no output to user)
+## Overview
 
-Run these checks and note the results internally:
+**Problem:** Git and GitHub create friction at every skill level — beginners stall at setup, intermediate users commit bad habits (pushing to main, no branching), advanced users lack optimization. Existing git skills assume a fixed experience level.
+
+**Solution:** Assess experience through environment signals and one targeted question. Adapt language, depth, and autonomy across six modes. Re-evaluate continuously — level up when confidence grows, switch to teaching mode when confusion appears.
+
+## Prerequisites
+
+- Terminal access with `git` installed
+- `gh` CLI installed (Setup mode handles installation if missing)
+- GitHub account (Setup mode handles creation if missing)
+
+## Instructions
+
+### Step 1 — Assess Skill Level
+
+Run passive checks silently (suppress output to user):
 
 ```bash
-# Authentication status
 gh auth status 2>&1
-
-# Is this a git repo? How mature?
 test -d .git && echo "GIT_REPO_EXISTS" || echo "NO_GIT_REPO"
 git log --oneline -20 2>/dev/null
 git branch -a 2>/dev/null
-
-# Commit message quality (single-word vs descriptive?)
 git log --format="%s" -10 2>/dev/null
-
-# Do they use branches or just main?
-git branch --list 2>/dev/null | wc -l
-
-# .gitignore exists and is meaningful?
 test -f .gitignore && wc -l .gitignore || echo "NO_GITIGNORE"
-
-# Any merge conflict markers in working tree?
-grep -rn "<<<<<<< " --include="*" . 2>/dev/null | head -5
-
-# Remote configured?
 git remote -v 2>/dev/null
 ```
 
-### Active Assessment (first interaction only)
+On first interaction, ask ONE question via `AskUserQuestion`: "How comfortable with GitHub? (1) Never used it (2) Can commit and push (3) Use branches and PRs regularly (4) Manage teams/repos, want to optimize"
 
-If this is the first time interacting with the user about GitHub in this session, ask ONE question using `AskUserQuestion`:
+Combine passive signals with the answer. Load `${CLAUDE_SKILL_DIR}/references/skill-assessment-guide.md` for the full matrix. Apply:
 
-> How comfortable are you with GitHub? Pick the closest:
->
-> 1. **"What's GitHub?"** — I'm brand new to this
-> 2. **"I can commit and push but that's about it"** — I know the basics
-> 3. **"I use branches and PRs regularly"** — I'm comfortable
-> 4. **"I manage teams/repos and want to optimize"** — I'm advanced
+| Level | Language | Depth | Autonomy |
+|-------|----------|-------|----------|
+| Beginner | Analogies, zero jargon | Explain everything | Execute for user, teach along the way |
+| Intermediate | Light jargon, define terms | Explain the why | Execute, ask to confirm |
+| Advanced | Standard vocabulary | Brief rationale only | Suggest, let user decide |
+| Expert | Terse, technical | None unless asked | User drives, assist only |
 
-Combine their answer with the passive signals to set the skill level.
+### Step 2 — Route to Mode
 
-### Adaptive Behavior Rules
+1. `gh auth status` fails OR no `.git/` directory — route to **Setup**
+2. Merge conflict markers in working tree — route to **Fix**
+3. Keywords "save", "commit", or dirty working tree — route to **Save**
+4. Keywords "share", "push", "PR" — route to **Share**
+5. Keywords "status", "history", "log", "diff", "what changed" — route to **Understand**
+6. Keywords "teach", "learn", "what are", "how do" — route to **Learn**
+7. Ambiguous — ask via `AskUserQuestion` with multiple choice
+8. Default with uncommitted changes — route to **Save**
 
-Read `${CLAUDE_SKILL_DIR}/references/skill-assessment-guide.md` for the full adaptive behavior matrix. The key principle: **adjust language, explanation depth, and autonomy based on the assessed level.**
+## Modes
 
-| Level | Language | Explanations | Autonomy |
-|-------|----------|-------------|----------|
-| Beginner | Analogies, zero jargon | Full step-by-step, explain everything | You do it, user watches and learns |
-| Intermediate | Light jargon with definitions | Explain the why, skip the what | You do it, ask user to confirm |
-| Advanced | Standard git vocabulary | Brief rationale only | You suggest, user decides |
-| Expert | Terse, technical | None unless asked | User drives, you assist |
+### Setup — Guided Onboarding
 
-**Continuously re-evaluate.** If a "beginner" starts using branch commands confidently, level up the language. If an "advanced" user freezes on a rebase conflict, drop into teaching mode for that specific topic.
+Check each prerequisite; skip completed steps. Handle: GitHub account verification, `gh` CLI install, `gh auth login`, `git config` identity, `git init`, `.gitignore` generation by project type, `gh repo create`, initial push. Load `${CLAUDE_SKILL_DIR}/references/safety-rules.md` before any operation.
 
-## Step 2: Detect the Mode
+### Save — Stage and Commit
 
-Based on the user's request and environment, route to one of six modes:
+Run `git status`. Summarize changes at the assessed level. Stage files individually — never blind `git add .` (check for secrets, `.env`, `node_modules`). Generate a descriptive commit message. Present for approval, then commit. Alternatively, offer `git add -p` for partial staging (intermediate+).
 
-### Mode Detection Logic
+### Share — Push and PR
 
-1. `gh auth status` fails OR no `.git/` directory → **Setup Mode**
-2. Merge conflict markers found in working tree → **Fix Mode**
-3. Auth errors in recent output → **Fix Mode**
-4. User says "save", "commit", or has uncommitted changes → **Save Mode**
-5. User says "share", "push", "PR", "pull request" → **Share Mode**
-6. User says "what changed", "status", "history", "log", "diff" → **Understand Mode**
-7. User says "teach", "learn", "what are", "how do", "explain" → **Learn Mode**
-8. Ambiguous → Ask the user with a multiple-choice `AskUserQuestion`
-9. Default with uncommitted changes → **Save Mode**
+Check current branch. If on `main`/`master`, create a feature branch first (non-negotiable). Push with `git push -u origin BRANCH`. Offer `gh pr create` with generated title and description. Alternatively, offer to push without a PR for solo projects.
 
----
+### Understand — Translate Git State
 
-## Mode: Setup
+Run `git status`, `git log --oneline -10`, `git diff --stat`. Translate output to the assessed level. Optionally run `git diff` for full file-level changes or `git log --graph` for branch visualization.
 
-**Goal:** Get the user from zero to a working GitHub setup.
+### Fix — Error Recovery
 
-The setup flow adapts — skip steps that are already done. Check each prerequisite before walking through it.
+Detect the problem category (conflict markers, auth failure, detached HEAD, failed rebase). Apply the matching recovery procedure from `${CLAUDE_SKILL_DIR}/references/error-recovery-playbook.md`. Walk through resolution at the assessed depth.
 
-### Flow
+### Learn — Interactive Lessons
 
-1. **Check `gh auth status`** — if authenticated, skip auth steps
-2. **Check `.git/` directory** — if exists, skip init
-3. **Check git identity** — `git config user.name` and `git config user.email`
-4. **Check remote** — `git remote -v`
+Route to the appropriate lesson from `${CLAUDE_SKILL_DIR}/references/learning-curriculum.md`. Follow do-then-explain methodology: run real commands, observe results, explain afterward. Verify understanding after each step before proceeding. Offer alternative lesson paths based on interest.
 
-For anything missing:
+## Examples
 
-**GitHub Account** (if needed):
-- Beginner: "GitHub is like Google Drive for code — it stores your project online so you can share it, back it up, and collaborate. Let's get you an account."
-- Advanced: Skip — they have one.
-
-**Install `gh` CLI** (if `gh` not found):
-- Detect OS and provide the right install command
-- Beginner: Explain what CLI tools are
-- Advanced: Just give the command
-
-**Authenticate** (`gh auth login`):
-- Walk through the browser-based OAuth flow
-- Beginner: Explain each step. "This connects your terminal to your GitHub account."
-- Advanced: "Run `gh auth login` and follow the prompts."
-
-**Configure git identity** (if not set):
-```bash
-git config --global user.name "Their Name"
-git config --global user.email "their@email.com"
+**Beginner, Save mode:**
+```
+User: "save my work"
+Agent: [runs git status, finds 3 modified files]
+Agent: "Three files changed — app.js (added a login page), style.css (new
+       button styles), package.json (added a library). Staging those now."
+Agent: [stages files, generates message]
+Agent: "Save point description: 'Add login page with styled button' — does
+       that capture what happened?"
 ```
 
-**Initialize repo** (if no `.git/`):
-- `git init`
-- Auto-generate `.gitignore` based on detected project type (Node, Python, etc.)
-- Create first commit
-- Beginner: Explain what each command does
-- Advanced: Just do it
+**Advanced, Share mode:**
+```
+User: "push this and open a PR"
+Agent: "On main — branching to feature/add-auth first."
+Agent: [creates branch, pushes, creates PR]
+Agent: "PR #42 open: https://github.com/user/repo/pull/42"
+```
 
-**Create remote** (if no remote):
-- `gh repo create` — explain the options, let the user choose public/private
-- Push initial commit
-- Show the user their repo URL
+**Intermediate, Fix mode:**
+```
+User: "git is yelling at me"
+Agent: [detects merge conflict in src/index.js]
+Agent: "Merge conflict in src/index.js — two branches modified lines 14-18.
+       Main has the old header, feature branch has the new one. Keep which
+       version, or combine them?"
+```
 
-**Handoff:**
-- Beginner: "You're all set up! From now on, just say 'save my work' or 'share my changes' and I'll handle the rest."
-- Advanced: "Repo initialized and linked. Ready to go."
+## Error Handling
 
----
+Load `${CLAUDE_SKILL_DIR}/references/error-recovery-playbook.md` for full procedures.
 
-## Mode: Save
+- **Merge conflicts:** Identify conflicted files via `git status`. Present each conflict with context. Guide resolution at assessed level. Stage resolved files and complete the merge.
+- **Auth failures:** Re-run `gh auth login`. Check token expiration. Verify remote URL protocol.
+- **Detached HEAD:** Create a recovery branch. Explain the situation. Return to a named branch.
+- **Failed rebase:** Abort with `git rebase --abort`. Offer merge as a simpler alternative.
+- **Accidental commit to main:** Move commit to a new branch, reset main (with explicit confirmation).
 
-**Goal:** Stage changes, generate a meaningful commit message, and commit.
+## Output
 
-### Flow
+Calibrate all output to the assessed skill level. Beginner: plain English with analogies, explain every command, confirm understanding. Intermediate: concise summaries, explain rationale, skip mechanics. Advanced: minimal commentary, show commands and results. Expert: raw output only.
 
-1. Run `git status` to see what's changed
-2. Show the user what's changed (adapted to level):
-   - Beginner: "You changed 3 files. Here's what you did: [plain English summary]"
-   - Advanced: Show the `git status` output directly
-3. Stage changes: `git add` the relevant files (never `git add .` blindly — check for secrets, `.env` files, `node_modules`)
-4. Generate a commit message in plain English that describes what changed and why
-5. Show the message to the user, let them approve or edit
-6. Commit
+Provide a brief inline explanation after every git operation, calibrated to level. Load `${CLAUDE_SKILL_DIR}/references/git-concepts-glossary.md` for term definitions when needed.
 
-**Inline education (beginner only):**
-> "A commit is like a save point in a video game — you can always come back to this exact moment. Each save point has a description so you remember what you did."
+## Safety Rules
 
-**Safety:** Read `${CLAUDE_SKILL_DIR}/references/safety-rules.md` — never commit secrets, always check what's being staged.
+Non-negotiable at all levels. Load `${CLAUDE_SKILL_DIR}/references/safety-rules.md` for full protocol. Enforce: never push to `main`/`master` (always branch first), never force-push without explicit confirmation, never run destructive operations without showing impact, always run `git status` before destructive operations, never commit secrets. Override direct-to-main requests by explaining branching safety, then branch.
 
----
+## Resources
 
-## Mode: Share
-
-**Goal:** Push changes and optionally create a PR.
-
-### Flow
-
-1. Check current branch — if on `main`/`master`, create a feature branch first
-   - Beginner: "We're going to create a separate copy of your work called a 'branch.' This keeps the main version of your code safe while you work on changes."
-   - Advanced: "You're on main — I'll branch before pushing."
-2. Push to remote: `git push -u origin <branch>`
-3. Ask if they want to create a PR
-4. If yes: `gh pr create` with a generated title and description
-   - Beginner: Walk through what a PR is and why it matters
-   - Advanced: Just create it, show the URL
-
-**Safety:** NEVER push to main/master. Always branch first. Read `${CLAUDE_SKILL_DIR}/references/safety-rules.md`.
-
----
-
-## Mode: Understand
-
-**Goal:** Translate git status, log, and diff into the user's language.
-
-### What It Covers
-
-- **Status:** What files are changed, staged, untracked
-- **Log:** Recent commit history — what happened and when
-- **Diff:** What exactly changed in each file
-
-### Adaptive Output
-
-- **Beginner:** "You have 3 files that you've changed but haven't saved yet. Think of it like having unsaved documents — we should save them before they get lost."
-- **Intermediate:** "3 modified files, 1 untracked. The changes are in `src/app.js` (added a new route), `package.json` (added express), and `README.md` (updated setup instructions)."
-- **Advanced:** Show raw `git status` + `git diff --stat` + summary
-- **Expert:** Raw output, no commentary
-
----
-
-## Mode: Fix
-
-**Goal:** Resolve merge conflicts, auth errors, detached HEAD, and other git problems.
-
-Read `${CLAUDE_SKILL_DIR}/references/error-recovery-playbook.md` for the full recovery procedures.
-
-### Common Fixes
-
-**Merge Conflicts:**
-- Beginner: Walk through each conflict line by line. Explain the `<<<<<<<`, `=======`, `>>>>>>>` markers with analogies. "Two people edited the same line — let's pick which version to keep."
-- Advanced: Show the diff, let them resolve, offer to help with specific files.
-
-**Authentication Errors:**
-- Re-run `gh auth login`
-- Check token expiration
-- Verify SSH vs HTTPS remote URLs
-
-**Detached HEAD:**
-- Explain what happened (adapted to level)
-- Create a branch to save the work: `git checkout -b recovery-branch`
-
-**Rebase Gone Wrong:**
-- `git rebase --abort` to undo
-- Explain what happened and offer a merge-based alternative
-
----
-
-## Mode: Learn
-
-**Goal:** Interactive, hands-on lessons using real commands on real repos.
-
-Read `${CLAUDE_SKILL_DIR}/references/learning-curriculum.md` for the full curriculum by level.
-
-### Teaching Philosophy
-
-Every lesson follows **do-then-explain**: run a real command, see the result, THEN get the explanation. Not slides. Not docs. Hands-on.
-
-### Lesson Routing
-
-Based on what the user asks and their assessed level, route to the appropriate lesson:
-
-**Beginner Lessons:**
-- "teach me github" / "learn github" → GitHub 101 (create repo, make changes, commit, push)
-- "what are branches" → Branching Basics (create branch, make change, switch back, see difference)
-- "teach me PRs" → Your First PR (create PR, see diff, write description, merge)
-
-**Intermediate Lessons:**
-- "teach me branching strategies" → Branch Workflows (feature branches, naming, when to branch)
-- "teach me code review" → PR Review Flow (review a PR, leave comments, approve/request changes)
-- "how do I collaborate" → Team Git (forking, upstream sync, co-authoring)
-
-**Advanced Lessons:**
-- "teach me rebase" → Rebase vs Merge (interactive rebase, squash, clean history)
-- "teach me CI/CD" → GitHub Actions Basics (write a workflow, understand checks)
-- "how do code review apps work" → Review Ecosystem (CodeRabbit, Copilot Review, etc.)
-
-After each lesson step, check the user's work and provide feedback before moving on.
-
-### Reference Material
-
-For deeper dives, pull from these reference files:
-- `${CLAUDE_SKILL_DIR}/references/git-concepts-glossary.md` — term definitions
-- `${CLAUDE_SKILL_DIR}/references/github-review-apps.md` — code review tool ecosystem
-- `${CLAUDE_SKILL_DIR}/references/claude-github-platforms.md` — how Claude works with GitHub across platforms
-
----
-
-## Safety Rules (All Modes, All Levels)
-
-These are non-negotiable. Read `${CLAUDE_SKILL_DIR}/references/safety-rules.md` for the full list.
-
-- **NEVER** push to `main`/`master` — always branch first
-- **NEVER** `--force` push without explicit user confirmation and a clear reason
-- **NEVER** `git reset --hard` without confirmation
-- **ALWAYS** run `git status` before any destructive operation
-- **NEVER** commit files that look like secrets (`.env`, credentials, API keys)
-- If the user says "just push to main" → explain why branching is safer, then branch anyway
-- Advanced users get the safety explanation once; beginners get it reinforced each time
-
-## Inline Educational Moments
-
-After every git operation, briefly explain what happened — calibrated to level:
-
-- **Beginner:** "A commit is like a save point in a video game — you can always come back to this exact moment."
-- **Intermediate:** "Committed 3 files to feature/login. This creates a snapshot you can reference or revert to."
-- **Advanced:** No explanation unless it's a new concept.
-- **Expert:** Silent unless asked.
-
-For full term definitions, reference `${CLAUDE_SKILL_DIR}/references/git-concepts-glossary.md`.
+- `${CLAUDE_SKILL_DIR}/references/git-concepts-glossary.md` — term definitions at beginner and technical levels
+- `${CLAUDE_SKILL_DIR}/references/error-recovery-playbook.md` — conflict resolution, auth repair, detached HEAD, rebase recovery
+- `${CLAUDE_SKILL_DIR}/references/safety-rules.md` — branch protection, secret detection, destructive operation guards
+- `${CLAUDE_SKILL_DIR}/references/github-review-apps.md` — CodeRabbit, Copilot Review, Greptile, CodeQL, Qodo
+- `${CLAUDE_SKILL_DIR}/references/claude-github-platforms.md` — platform capabilities across Claude Code, Cursor, Windsurf, and others
+- `${CLAUDE_SKILL_DIR}/references/skill-assessment-guide.md` — full adaptive behavior matrix with level-up and level-down signals
+- `${CLAUDE_SKILL_DIR}/references/learning-curriculum.md` — progressive lesson plans from beginner through advanced

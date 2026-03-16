@@ -59,25 +59,29 @@ Destructive operations include:
 | Destructive | Safer Alternative |
 |------------|------------------|
 | `git reset --hard` | `git stash` (saves changes for later) |
-| `git checkout -- <file>` | `git stash` then selectively restore |
+| `git restore FILE` | `git diff FILE` first to review what will be lost |
 | `git clean -fd` | `git clean -fdn` (dry run first) |
 | `git branch -D` | `git branch -d` (fails if unmerged — that's the point) |
+| `git push origin --delete BRANCH` | Verify branch is fully merged first with `git branch --merged` |
 
 ## Secret Protection
 
 ### Rule: NEVER commit files that contain secrets
 
 **Check before staging:**
-- `.env` files
+- `.env` and `.env.*` files
 - Files named `credentials`, `secrets`, `tokens`, `keys`
 - Files containing strings that look like API keys, passwords, or tokens
-- `*.pem`, `*.key` files
+- `*.pem`, `*.key`, `*.p12`, `*.pfx` files
 - `config.local.*` files
+- Service account JSON files
 
 **What to do:**
 1. Add these patterns to `.gitignore` BEFORE committing
 2. If accidentally committed, help the user remove from history and rotate the secret
 3. Warn the user that once pushed, a secret should be considered compromised
+
+**Important:** Adding a file to `.gitignore` does NOT untrack already-tracked files. To stop tracking a file already committed, run `git rm --cached FILE` first.
 
 **Auto-generate `.gitignore` patterns:**
 ```
@@ -86,8 +90,12 @@ Destructive operations include:
 .env.*
 *.pem
 *.key
+*.p12
+*.pfx
 credentials.*
 secrets.*
+tokens.*
+*-service-account.json
 ```
 
 ## Commit Hygiene
