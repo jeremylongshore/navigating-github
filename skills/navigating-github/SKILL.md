@@ -9,13 +9,15 @@ description: |
   version control. Trigger phrases: "help me with github", "save my
   work", "share my changes", "set up my repo", "what changed", "fix
   this merge conflict", "push my code", "create a pull request", "teach
-  me github", "learn git". Make sure to use this skill whenever anyone
-  asks about git or GitHub regardless of their experience level.
-allowed-tools: Read, Write, Glob, Grep, Bash, AskUserQuestion
+  me github", "learn git". Trigger with "help me with github", "save my
+  work", "share my changes", "set up my repo", "teach me github", or any
+  git/GitHub question. Make sure to use this skill whenever anyone asks
+  about git or GitHub regardless of their experience level.
+allowed-tools: Read, Write, Glob, Grep, Bash(git:*, gh:*, echo:*, test:*, ssh:*), AskUserQuestion
 version: 1.0.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
-compatible-with: claude-code, cowork, cursor, windsurf, cline, aider, continue
+compatible-with: claude-code, cursor, windsurf, aider, continue
 tags: [github, git, beginner, intermediate, advanced, vibe-coding, version-control, collaboration, learning]
 ---
 
