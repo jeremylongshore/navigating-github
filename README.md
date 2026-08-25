@@ -8,6 +8,8 @@ This skill does two things:
 
 No slides. No docs. No assumed knowledge. Run a command, see what happens, then understand why. The AI adapts to your level automatically.
 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/U5S225PTME)
+
 ## Setup — From Zero to GitHub
 
 Say "set up my repo" or "help me with github" and the skill walks through everything:
