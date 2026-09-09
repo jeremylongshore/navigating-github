@@ -30,9 +30,8 @@ Progressive lesson plans for beginner, intermediate, and advanced users. Each le
    *After:* "You just created a project on GitHub and downloaded it to your computer. It's like creating a new folder in Google Drive."
 
 2. **Create a file**
-   ```bash
-   echo "# My First Project" > README.md
-   ```
+   Use the host's file-writing tool to create `README.md` containing
+   `# My First Project`. Do not overwrite an existing README.
    *After:* "You made a file. Git noticed — let's see what it thinks."
 
 3. **Check status**

@@ -1,7 +1,7 @@
 ---
 name: github-learn
 description: Interactive GitHub setup and hands-on git learning for any skill level.
-allowed-tools: Read, Write, Glob, Grep, Bash(git:*), Bash(gh:*), Bash(ssh:*), Bash(test:*), Bash(echo:*), AskUserQuestion
+allowed-tools: "Read,Write,Glob,Grep,Bash(git:*),Bash(gh:*),Bash(ssh:*),Bash(test:*),AskUserQuestion"
 user-invocable: true
 argument-hint: "[lesson]"
 ---
@@ -52,7 +52,10 @@ Only ask the comfort question via `AskUserQuestion` when signals are genuinely a
 
 ### Step 4 — Execute
 
-**Setup:** Read and follow the Setup mode instructions in `${CLAUDE_SKILL_DIR}/skills/navigating-github/SKILL.md`. Walk through each prerequisite interactively, skip completed steps. After completion, show the lesson menu.
+**Setup:** Read and follow the Setup mode instructions in
+`${CLAUDE_PLUGIN_ROOT}/skills/navigating-github/SKILL.md`. Walk through each
+prerequisite interactively, skip completed steps, and honor every approval
+boundary. After completion, show the lesson menu.
 
 **Lesson menu** (when no specific lesson requested and setup is complete):
 
@@ -75,7 +78,11 @@ Present via `AskUserQuestion`:
 > 8. GitHub Actions — write a CI workflow, watch it run
 > 9. Code Review Apps — CodeRabbit, Copilot Review, and the ecosystem
 
-**Specific lesson:** Read `${CLAUDE_SKILL_DIR}/skills/navigating-github/references/learning-curriculum.md` and execute the matching lesson. Follow do-then-explain methodology: run real commands, observe results, explain afterward. Verify understanding after each step.
+**Specific lesson:** Read
+`${CLAUDE_PLUGIN_ROOT}/skills/navigating-github/references/learning-curriculum.md`
+and execute the matching lesson. Follow do-then-explain methodology: run real
+commands, observe results, explain afterward. Verify understanding after each
+step and ask before remote writes.
 
 After each lesson, summarize what was learned and suggest the next lesson.
 

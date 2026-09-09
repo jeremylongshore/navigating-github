@@ -10,21 +10,20 @@ description: |
   git, or says "teach me github". Trigger with "set up my repo",
   "help me with github", "teach me github", "learn git", "what are
   branches", "teach me PRs", or "how do I use github".
-allowed-tools: Read, Write, Glob, Grep, Bash(git:*), Bash(gh:*), Bash(ssh:*), Bash(test:*), Bash(echo:*), AskUserQuestion
-version: 2.0.0
+allowed-tools: "Read,Write,Glob,Grep,Bash(git:*),Bash(gh:*),Bash(ssh:*),Bash(test:*),AskUserQuestion"
+argument-hint: "[setup|101|branches|prs|workflows|review|rebase|actions|apps]"
+version: 2.1.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
-compatible-with: claude-code, cursor, windsurf, aider, continue
+compatibility: "Designed for Claude Code with git and GitHub CLI (gh). Other Agent Skills hosts require equivalent file, shell, and user-prompt tools. Network access to github.com is required for remote operations."
 tags: [github, git, beginner, intermediate, advanced, vibe-coding, version-control, learning, onboarding]
+model: inherit
+effort: medium
 ---
 
 # Navigating GitHub
 
 First-time GitHub setup and interactive git learning. Get set up, then learn by doing.
-
-## Table of Contents
-
-1. Overview — 2. Prerequisites — 3. Instructions — 4. Modes — 5. Examples — 6. Output — 7. Resources
 
 ## Overview
 
@@ -42,7 +41,8 @@ First-time GitHub setup and interactive git learning. Get set up, then learn by 
 
 ### Step 1 — Route
 
-Determine mode from the user's request. Act immediately — no preamble.
+Determine mode from the user's request. Start with read-only discovery; do not
+change local or GitHub state until the requested mode and target are established.
 
 1. No `.git/` directory OR `gh auth status` fails → **Setup** (check with `test -d .git` and `gh auth status`)
 2. Keywords "teach", "learn", "what are", "how do", "explain", "lesson" → **Learn**
@@ -58,7 +58,11 @@ Each mode runs `git status` as part of its normal operation. Infer level from th
 - Branch naming conventions + conventional commits → **Advanced**
 - Complex history, multiple remotes, CI configured → **Expert**
 
-Only ask via `AskUserQuestion` when signals are genuinely ambiguous. Read `${CLAUDE_SKILL_DIR}/references/skill-assessment-guide.md` for the full adaptive behavior matrix. Apply:
+Only ask via `AskUserQuestion` when signals are genuinely ambiguous. Use `Read`
+for the relevant reference file, `Glob` to inventory existing repository files,
+and `Grep` to check candidate staged files for obvious credential patterns. Read
+`${CLAUDE_SKILL_DIR}/references/skill-assessment-guide.md` for the full adaptive
+behavior matrix. Apply:
 
 | Level | Language | Depth | Autonomy |
 |-------|----------|-------|----------|
@@ -73,7 +77,19 @@ Only ask via `AskUserQuestion` when signals are genuinely ambiguous. Read `${CLA
 
 The core experience for first-time users. Walk through each step interactively, skipping anything already done. Run each check, explain what it means, fix what's missing.
 
-**Sequence:** Check `gh auth status` → install `gh` if missing (detect OS, give command) → run `gh auth login` (walk through browser OAuth) → check `git config user.name` and `user.email` (set if missing) → check for `.git/` (run `git init` if missing) → generate `.gitignore` by detected project type → create first commit → run `gh repo create` (let user choose public/private) → push → show the repo URL.
+**Sequence:** Check `gh auth status` → if `gh` is missing, detect the OS and offer
+the official install command → use `gh auth login` and its browser/device OAuth
+flow → inspect `git config user.name` and `user.email` → inspect `.git/` and the
+working tree → use `Write` to create or extend `.gitignore` without overwriting
+project-specific rules → initialize only when requested → preview the exact
+files for the first commit → obtain explicit choices for repository name and
+public/private visibility → create a feature branch and commit → create the
+remote → push the feature branch → show the repository URL.
+
+Treat the setup request as authorization to guide the workflow, not blanket
+authorization for external writes. Confirm before changing git identity,
+creating a GitHub repository, making the first commit, or pushing. Never turn a
+private local project into a public repository by default.
 
 Skip completed steps. Explain each step at the inferred level. After completion, offer the lesson menu: "Repo is set up. Say 'teach me github' or run `/github-learn` to start learning."
 
@@ -108,6 +124,9 @@ After each lesson: summarize what was learned (2-3 bullets), give a small challe
 - Create a safe practice branch before exercises that modify the repo
 - Never push to `main`/`master` during lessons — always branch first
 - Never commit secrets — check for `.env`, API keys before staging
+- Preview staged paths before every teaching commit
+- Ask before each remote write, including repository creation, push, merge, app
+  installation, or branch deletion
 
 ## Examples
 
@@ -141,7 +160,29 @@ Agent: [guides through git rebase -i, explains pick/squash/fixup]
 
 ## Output
 
-Calibrate all output to the inferred skill level. Beginner: plain English with analogies, explain every command. Intermediate: concise summaries, explain rationale. Advanced: minimal commentary. Expert: raw output only. Read `${CLAUDE_SKILL_DIR}/references/git-concepts-glossary.md` when a term definition is needed.
+Calibrate output to the inferred skill level. Beginner: plain English with
+analogies and command explanations. Intermediate: concise summaries with
+rationale. Advanced and expert: minimal commentary, while still reporting every
+state-changing command, its target, and its result. Read
+`${CLAUDE_SKILL_DIR}/references/git-concepts-glossary.md` when a term definition
+is needed.
+
+## Error Handling
+
+- **`gh` missing:** give the official installation path for the detected OS; do
+  not download or execute an installer without authorization.
+- **Authentication fails:** explain `gh auth status`, retry `gh auth login`, and
+  never request a token in chat.
+- **Dirty working tree:** preserve existing changes, show the affected paths,
+  and isolate lesson work on a new branch or practice repository.
+- **Secret detected:** stop before staging or pushing; explain remediation and
+  credential rotation if the secret was already published.
+- **Rejected push or branch protection:** inspect the remote and required checks;
+  do not force-push or bypass protection without explicit authorization.
+- **Conflict or detached HEAD:** stop new mutations and follow the
+  [error recovery playbook](references/error-recovery-playbook.md).
+- **External write fails:** report the exact GitHub target and failure; never
+  claim a repository, pull request, review, or app was created without a receipt.
 
 ## Resources
 

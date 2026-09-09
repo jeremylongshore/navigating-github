@@ -1,22 +1,16 @@
 {
   "name": "navigating-github",
-  "version": "1.0.0",
-  "description": "Adaptive GitHub companion for all skill levels. AI-driven assessment that meets you where you are — from first commit to team workflows.",
-  "author": "Jeremy Longshore <jeremy@intentsolutions.io>",
+  "version": "2.1.0",
+  "description": "Interactive GitHub setup and hands-on git learning with explicit safety and approval boundaries.",
+  "author": {
+    "name": "Jeremy Longshore",
+    "email": "jeremy@intentsolutions.io",
+    "url": "https://intentsolutions.io"
+  },
+  "homepage": "https://github.com/jeremylongshore/navigating-github",
   "repository": "https://github.com/jeremylongshore/navigating-github",
-  "homepage": "https://tonsofskills.com",
   "license": "MIT",
-  "keywords": [
-    "github",
-    "git",
-    "beginner",
-    "intermediate",
-    "advanced",
-    "vibe-coding",
-    "version-control",
-    "collaboration",
-    "learning",
-    "onboarding",
-    "adaptive"
-  ]
+  "keywords": ["github", "git", "learning", "onboarding", "version-control"],
+  "skills": "./skills/",
+  "commands": "./commands/"
 }

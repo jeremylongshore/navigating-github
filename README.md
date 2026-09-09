@@ -46,7 +46,7 @@ Say "teach me github" or run `/github-learn` to start. Every lesson runs on your
 |--------|------------|
 | **Rebase vs Merge** | Interactive rebase, squash commits, clean history |
 | **GitHub Actions** | Write a CI workflow, push, watch it run |
-| **Review Ecosystem** | Set up CodeRabbit, understand automated review tools |
+| **Review Ecosystem** | Compare native, static-analysis, and third-party review options |
 
 Each lesson checks understanding before moving on. After each lesson, you get a summary, a challenge to try solo, and a suggestion for what to learn next.
 
@@ -66,12 +66,18 @@ The skill figures out your level from your environment — commit message qualit
 ```bash
 # Claude Code
 /plugin marketplace add jeremylongshore/navigating-github
+/plugin install navigating-github@navigating-github
+
+# Agent Skills CLI
+npx skills add jeremylongshore/navigating-github --skill navigating-github
 
 # Manual
 git clone https://github.com/jeremylongshore/navigating-github.git
 ```
 
-Works with: **Claude Code**, **Cursor**, **Windsurf**, **Aider**, **Continue** — any AI coding tool with terminal access.
+Designed for **Claude Code**. Other Agent Skills hosts can use the curriculum
+when they provide equivalent file tools, interactive prompting, a terminal,
+`git`, and the GitHub CLI.
 
 ## Safety (During All Lessons)
 
@@ -79,6 +85,8 @@ Works with: **Claude Code**, **Cursor**, **Windsurf**, **Aider**, **Continue** �
 - Never force pushes without explicit confirmation
 - Never commits secrets (`.env`, API keys, credentials)
 - Never runs destructive operations without showing impact first
+- Never creates a repository, pushes, merges, or installs an app without explicit
+  user authorization
 
 ## Contributing
 
