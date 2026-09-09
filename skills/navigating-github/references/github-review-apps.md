@@ -1,105 +1,74 @@
-# GitHub Code Review Apps & Tools
+# GitHub Code Review Options
 
-An overview of the code review ecosystem for GitHub. Depth of explanation adapts to user skill level.
+Automated review supplements human review; it does not prove a change is safe or
+correct. Choose a tool only after checking repository risk, data access,
+governance requirements, and the tool's current documentation.
 
-## Why Automated Code Review?
+## Start with the repository's native gates
 
-**Beginner framing:** "These apps watch your pull requests and give feedback automatically — like having a senior developer review your code 24/7. They catch bugs, suggest improvements, and help you learn."
+Before adding an AI reviewer:
 
-**Intermediate framing:** "Automated review tools complement human reviewers by catching patterns humans miss: security issues, performance problems, style inconsistencies. They run on every PR automatically."
+1. Require relevant tests, lint, and security checks.
+2. Protect the default branch with the appropriate ruleset.
+3. Require human review for sensitive or high-impact changes.
+4. Document ownership and review expectations in `CODEOWNERS`, `AGENTS.md`, or
+   repository instructions as appropriate.
 
-**Advanced framing:** "These integrate into your PR workflow via GitHub Apps or Actions. They post inline comments, block merges on critical findings, and reduce review burden on your team."
+## Current review categories
 
-## Tools Overview
+### GitHub Copilot code review
 
-### CodeRabbit
+GitHub Copilot can review pull requests and can be requested manually or through
+repository rulesets where the account and plan permit it. Configuration,
+availability, review effort, billing, approval behavior, and organization policy
+change over time; verify them in GitHub's current documentation and repository
+settings before enabling automatic reviews.
 
-**What it does:** AI-powered code review that posts detailed, contextual inline comments on PRs. Understands the full context of changes, not just syntax.
+### CodeQL
 
-**Key features:**
-- Inline PR comments with explanations and fix suggestions
-- Understands project context and patterns
-- Configurable review depth and focus areas
-- Supports 20+ languages
+CodeQL provides deterministic code scanning and code-quality findings through
+GitHub checks. It is a security and static-analysis gate, not a substitute for a
+general code review. Select only the languages present in the repository and
+confirm the workflow passes on a representative pull request.
 
-**Best for:** Teams that want comprehensive AI review with actionable feedback.
+### Third-party GitHub Apps
 
-**Setup:** Install the GitHub App from github.com/apps/coderabbitai. Configure via `.coderabbit.yaml` in repo root.
+CodeRabbit, Greptile, and Qodo offer pull-request review integrations. Treat each
+installation as an authorization decision:
 
-**Hands-on exercise (intermediate):** Walk through installing CodeRabbit on a repo, creating a test PR, and reading the review comments.
+- inspect requested repository and organization permissions;
+- scope installation to the smallest repository set;
+- review retention, training, indexing, and private-code policies;
+- verify current pricing and feature availability from the vendor;
+- test on a low-risk pull request before relying on results;
+- document how to disable and uninstall the integration.
 
-### GitHub Copilot Code Review
+Do not install an app, accept new permissions, or enable automatic writes without
+explicit user authorization.
 
-**What it does:** GitHub's built-in AI review, integrated directly into the PR interface. Powered by the same models behind GitHub Copilot.
+## Decision guide
 
-**Key features:**
-- Native GitHub integration — no extra app to install
-- Suggests code improvements inline
-- Available with GitHub Copilot subscription
+| Need | Start with | Verify |
+|---|---|---|
+| Security vulnerabilities | CodeQL and language-specific scanners | Query coverage, workflow permissions, required checks |
+| Native GitHub AI feedback | Copilot code review | Account policy, billing, ruleset behavior, re-review policy |
+| Cross-file or vendor-specific review | A scoped third-party app trial | Permissions, data policy, noise rate, uninstall path |
+| Merge confidence | Human review plus CI | Test evidence, unresolved threads, branch protection |
 
-**Best for:** Teams already using GitHub Copilot who want review integrated into their existing workflow.
+## Safe hands-on exercise
 
-**Setup:** Enable in repository settings under Copilot features (requires Copilot subscription).
+1. Use a public or synthetic test repository with no secrets or customer data.
+2. Show the app permissions and obtain explicit approval before installation.
+3. Open a small pull request containing a known, non-sensitive defect.
+4. Compare findings with tests and a human review; do not grade solely on comment
+   count.
+5. Remove the app if the evaluation is complete or its access is not justified.
 
-### Greptile
+## Authoritative references
 
-**What it does:** AI code review that builds a deep understanding of your codebase. Goes beyond single-file review to understand architectural patterns and cross-file dependencies.
-
-**Key features:**
-- Codebase-aware review (understands how files relate)
-- Catches architectural issues, not just syntax
-- Natural language explanations
-
-**Best for:** Larger codebases where cross-file context matters for review quality.
-
-**Setup:** Install via GitHub App. Indexes your codebase for contextual understanding.
-
-### CodeQL (GitHub Advanced Security)
-
-**What it does:** Static analysis that finds security vulnerabilities and bugs by treating code as data. Queries the code structure to find patterns that match known vulnerability classes.
-
-**Key features:**
-- Security-focused: finds SQL injection, XSS, auth bypass, etc.
-- Runs as GitHub Actions workflow
-- Free for public repositories
-- Includes SARIF reporting for security dashboards
-
-**Best for:** Security-conscious teams, open-source projects, and anyone shipping code that handles user data.
-
-**Setup:** Add `.github/workflows/codeql.yml` to your repo. GitHub provides starter workflows.
-
-**Beginner note:** "CodeQL is like a security guard for your code. It checks for common security mistakes that could let hackers in."
-
-### Qodo (formerly CodiumAI)
-
-**What it does:** AI-powered test generation and code review. Focuses on suggesting tests for your changes and finding edge cases.
-
-**Key features:**
-- Auto-generates test suggestions for PRs
-- Identifies untested edge cases
-- Reviews code for potential bugs
-- IDE integration (VS Code, JetBrains)
-
-**Best for:** Teams that want to improve test coverage alongside code review.
-
-**Setup:** Install the GitHub App or IDE extension.
-
-## Comparison Matrix
-
-| Tool | Focus | Cost (Public Repos) | Setup Effort | Review Style |
-|------|-------|--------------------|--------------|----|
-| CodeRabbit | Comprehensive AI review | Free tier available | Low (GitHub App) | Inline comments |
-| Copilot Review | General AI review | Copilot subscription | Minimal (built-in) | Inline suggestions |
-| Greptile | Codebase-aware review | Free tier available | Low (GitHub App) | Contextual comments |
-| CodeQL | Security vulnerabilities | Free | Medium (Actions workflow) | Security alerts |
-| Qodo | Test generation + review | Free tier available | Low (GitHub App) | Test suggestions |
-
-## Recommendations by Skill Level
-
-**Beginner:** Start with Copilot Code Review (if available) or CodeRabbit. Both are easy to set up and provide clear, actionable feedback that helps you learn.
-
-**Intermediate:** Add CodeQL for security scanning. Start reading review comments critically — understand why each suggestion is made, not just whether to accept it.
-
-**Advanced:** Layer multiple tools. Use CodeRabbit or Greptile for general review, CodeQL for security, and Qodo for test coverage gaps. Configure review rules to match your team's standards.
-
-**Expert:** Evaluate tools based on signal-to-noise ratio for your codebase. Consider custom CodeQL queries for domain-specific patterns. Integrate review tools into your CI/CD pipeline as merge gates.
+- [About GitHub Copilot code review](https://docs.github.com/en/copilot/concepts/agents/code-review)
+- [Configure GitHub Copilot code review](https://docs.github.com/en/copilot/how-tos/copilot-on-github/set-up-copilot/configure-code-review)
+- [CodeQL code-quality analysis](https://docs.github.com/en/code-security/reference/code-quality/codeql-detection)
+- [CodeRabbit documentation](https://docs.coderabbit.ai/)
+- [Greptile documentation](https://docs.greptile.com/)
+- [Qodo code review documentation](https://docs.qodo.ai/code-review)
